@@ -89,12 +89,24 @@ INSERT 연습
 
 // 여러 문서를 insert
 db.posts.insertMany([
-	{title: "Fifth Post",
-	  by: "bit",
-	  likes: 50},
-	{title: "Sixth Post",
-	  by: "hong",
-	  likes: 50}
+	{title: "First Post",
+ 		by: "bit",
+ 		likes: 10},
+	{title: "Second Post",
+ 		by: "hong",
+ 		likes: 50},
+	{title: "Third Post",
+		by: "bit",
+		likes: 30},
+	{title: "Fourth Post",
+		by: "hong",
+		likes: 10},
+{title: "Fifth Post",
+		by: "bit",
+		likes: 50},
+{title: "Sixth Post",
+		by: "hong",
+		likes: 50}
 ])
 
 // 문서의 검색
