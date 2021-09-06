@@ -1,188 +1,174 @@
-// ÇöÀç ¸ù°íDB¿¡ ÀÖ´Â µ¥ÀÌÅÍº£ÀÌ½ºÀÇ ¸ñ·Ï È®ÀÎ
-show dbs
-
-// µ¥ÀÌÅÍº£ÀÌ½ºÀÇ »ç¿ë
-use local
-
-// È®ÀÎ
-db
-
-// ÇöÀç collection È®ÀÎ
-show collections
-
-// »ı¼ºÀ» À§ÇÑ ÀıÂ÷ ÇÊ¿ä ¾ø°í
-// »èÁ¦¸¦ À§ÇØ¼­´Â db.dropDatabase()
-
-// DB »óÅÂ È®ÀÎ
-db.stats();
-
-// Æ¯Á¤ ÄÃ·º¼ÇÀÇ Á¤º¸
-db.startup_log.stats();
-
-// mydb µ¥ÀÌÅÍº£ÀÌ½º ¼±ÅÃ
-use mydb
-
-// ¼±ÅÃ µ¥ÀÌÅÍº£ÀÌ½º È®ÀÎ
-db
-
-// titleÀÌ First PostÀÎ ¹®¼­¸¦ »ğÀÔ
-db.posts.insert({"title": "First Post"})
-
-// Document °Ë»ö
-// 1°³ ¹®¼­ °Ë»ö : findOne()
-db.posts.findOne();
-
-// JSON °´Ã¼ ¸¸µé±â
-let post = {
-	"title": "Second Post"
-}
-
-db.posts.save(post);
-
-// save: Document¿¡ _id ÇÊµå°¡ ¾øÀ¸¸é
-// insert (»ğÀÔ)
-
-// ¹®¼­ ÇÑ °³¸¦ ¼±ÅÃ
-post = db.posts.findOne();
-post
-// _id°¡ ¼³Á¤µÇ¾î ÀÖ´Ù
-// ½ºÅ°¸¶°¡ Á¤ÇØÁ® ÀÖÁö ¾Ê´Ù.
-post.createdAt = new Date();
-// save: Document¿¡ _id ÇÊµå°¡ ÀÖÀ¸¸é
-// 	update (°»½Å)
-db.posts.save(post)
-
-// ±âÁ¸ ¹®¼­ÀÇ °»½Å(Update)
-/* 
-db.ÄÃ·º¼Ç¸í.update(
-	{ º¯°æ ¹®¼­ÀÇ Á¶°Ç },
-	{ $set:
-		{ ¾÷µ¥ÀÌÆ® ÇÒ ³»¿ë }
-	}
-);
-*/
-db.posts.update(
-	{ "title": "First Post" },
-	{ $set:
-		{ createdAt: new Date(),
-		  updatedAt: new Date() }
-	}
-);
-        
-// °´Ã¼ÀÇ »èÁ¦ : .remove
-post = db.posts.findOne()
-db.posts.remove(post)
-        
-// °Ë»ö Á¶°Ç °´Ã¼¸¦ ÀÌ¿ëÇÑ »èÁ¦
-db.posts.remove({"title": /Second/})
-
-/*
-db.posts ÄÃ·º¼Ç¿¡
-title: "First Post", by: "bit", likes: 10
-title: "Second Post", by: "hong", likes: 50
-title: "Third Post", by: "bit", likes 30
-title: "Fourth Post", by: "hone", likes: 10
-
-INSERT ¿¬½À
-*/
-db.posts.insert(
-    {title: "First Post",
-        by: "bit",
-        likes: 10
-    });
-db.posts.insert(
-    {title: "Second Post",
-        by: "hong",
-        likes: 50
-    });
-db.posts.insert(
-    {title: "Third Post",
-        by: "bit",
-        likes: 30
-    });
-db.posts.insert(
-    {title: "Fourth Post",
-        by: "hong",
-        likes: 10
-    });
-    
-// ¿©·¯ ¹®¼­¸¦ insert
-db.posts.insertMany([
-	{title: "Fifth Post",
-	  by: "bit",
-	  likes: 50},
-	{title: "Sixth Post",
-	  by: "hong",
-	  likes: 50}
-])
-          
-// ¹®¼­ÀÇ °Ë»ö
-// findOne: Á¶°ÇÀ» ¸¸Á·ÇÏ´Â ¹®¼­ Áß ÇÑ °³¸¦ ¹İÈ¯
-// find(): Á¶°ÇÀ» ¸¸Á·ÇÏ´Â ¹®¼­ÀÇ Ä¿¼­¸¦ ¹İÈ¯
-db.posts.findOne()
-db.posts.find()
-//	.pretty() ¸Ş¼­µå: BSONÀ» º¸±â ÁÁ°Ô Ãâ·Â
-
-// °Ë»ö Á¶°Ç ¿¬»êÀÚ
-// °°´Ù: { key: value }
-db.posts.find({ "by": "bit" })	// by = bit
-
-// Å©´Ù: $gt { key: {$gt: value })
-db.posts.find({ "likes": { $gt: 30 } })  // likes > 50
-// Å©°Å³ª °°´Ù: $gte
-// ÀÛ´Ù: $lt
-// ÀÛ°Å³ª °°´Ù: $lte
-// °°Áö ¾Ê´Ù: $ne
-
-// Á¶°ÇÀÇ Á¶ÇÕ
-// and ¿¬»ê
-/*
-  {
-    $and: [
-       { Á¶°Ç °´Ã¼ 1 },
-       { Á¶°Ç °´Ã¼ 2 }
-    ]
-*/
-
-// by°¡ hongÀÌ°í likes <= 30
-db.posts.find({
-		$and: [
-			{ by: "hong" },
-			{ likes: { $lte: 30 } }
-		]
-	}
-)
-        
-// or ¿¬»ê
-/*
-  {
-     $or: [
-	{ Á¶°Ç °´Ã¼ 1 },
-	{ Á¶°Ç °´Ã¼ 2 }
-     ]
-  }
-*/
-// by°¡ hong ÀÌ°Å³ª likes > 10
-db.posts.find({
-		$or:[
-			{ by: "hong" },
-			{ likes: { $gt: 10 } }
-		]
-	}
-)
-        
-// Projection
-// find, findOneÀÇ µÎ ¹øÂ° ÀÎÀÚ °´Ã¼·Î Ãâ·Â ÇÊµå¸¦ ¸í½Ã
-//  Ãâ·ÂÀ» Á¦¾îÇÒ ¼ö ÀÖ´Ù.
-//  1: Ãâ·ÂÇÔ, 0: Ãâ·ÂÇÏÁö ¾ÊÀ½
-// ¸ğµç ¹®¼­µé Áß¿¡¼­, _id Ãâ·ÂÇÏÁö ¾Ê°í
-//  title, likes Á¤º¸¸¦ Ãâ·Â
-db.posts.find({}, { title: 1, likes: 1, _id: 0 })
-
-// Ãâ·Â Á¦ÇÑ
-//  .limit : ¹Ş¾Æ¿Ã °¹¼ö¸¦ Á¦ÇÑ
-//  .skip : °Ç³Ê¶Û ¹®¼­ÀÇ °¹¼ö ÁöÁ¤
-db.posts.find().limit(2).skip(2)
-
-// likesÀÇ ¿ª¼øÀ¸·Î Á¤·Ä
+// í˜„ì¬ ëª½ê³ DBì— ìˆëŠ” ë°ì´í„°ë² ì´ìŠ¤ì˜ ëª©ë¡ í™•ì¸
+show dbs
+
+// ë°ì´í„°ë² ì´ìŠ¤ì˜ ì‚¬ìš©
+use local
+
+// í™•ì¸
+db
+
+// í˜„ì¬ collection í™•ì¸
+show collections
+
+// ìƒì„±ì„ ìœ„í•œ ì ˆì°¨ í•„ìš” ì—†ê³ 
+// ì‚­ì œë¥¼ ìœ„í•´ì„œëŠ” db.dropDatabase()
+
+// DB ìƒíƒœ í™•ì¸
+db.stats();
+
+// íŠ¹ì • ì»¬ë ‰ì…˜ì˜ ì •ë³´
+db.startup_log.stats();
+
+// mydb ë°ì´í„°ë² ì´ìŠ¤ ì„ íƒ
+use mydb
+
+// ì„ íƒ ë°ì´í„°ë² ì´ìŠ¤ í™•ì¸
+db
+
+// titleì´ First Postì¸ ë¬¸ì„œë¥¼ ì‚½ì…
+db.posts.insert({"title": "First Post"})
+
+// Document ê²€ìƒ‰
+// 1ê°œ ë¬¸ì„œ ê²€ìƒ‰ : findOne()
+db.posts.findOne();
+
+// JSON ê°ì²´ ë§Œë“¤ê¸°
+let post = {
+	"title": "Second Post"
+}
+
+db.posts.save(post);
+
+// save: Documentì— _id í•„ë“œê°€ ì—†ìœ¼ë©´
+// insert (ì‚½ì…)
+
+// ë¬¸ì„œ í•œ ê°œë¥¼ ì„ íƒ
+post = db.posts.findOne();
+post
+// _idê°€ ì„¤ì •ë˜ì–´ ìˆë‹¤
+// ìŠ¤í‚¤ë§ˆê°€ ì •í•´ì ¸ ìˆì§€ ì•Šë‹¤.
+post.createAt = new Date();
+// save: Documentì— _id í•„ë“œê°€ ìˆìœ¼ë©´
+// 	update (ê°±ì‹ )
+db.posts.save(post)
+
+// ê¸°ì¡´ ë¬¸ì„œì˜ ê°±ì‹ (Update)
+/* 
+db.ì»¬ë ‰ì…˜ëª….update(
+	{ ë³€ê²½ ë¬¸ì„œì˜ ì¡°ê±´ },
+	{ $set:
+		{ ì—…ë°ì´íŠ¸ í•  ë‚´ìš© }
+	}
+);
+*/
+db.posts.update(
+	{ "title": "First Post" },
+	{ $set:
+		{ createdAt: new Date(),
+		  updatedAt: new Date() }
+	}
+);
+
+// ê°ì²´ì˜ ì‚­ì œ : .remove
+post = db.posts.findOne()
+db.posts.remove(post)
+
+// ê²€ìƒ‰ ì¡°ê±´ ê°ì²´ë¥¼ ì´ìš©í•œ ì‚­ì œ
+db.posts.remove({"title": /Second/}) // /íŒ¨í„´/ -> ì •ê·œí‘œí˜„ì‹, ë¬¸ìì—´ í¬í•¨ëœ íŒ¨í„´
+
+
+/*
+db.posts ì»¬ë ‰ì…˜ì—
+title: "First Post", by: "bit", likes: 10
+title: "Second Post", by: "hong", likes: 50
+title: "Third Post", by: "bit", likes 30
+title: "Fourth Post", by: "hong", likes: 10
+
+INSERT ì—°ìŠµ
+*/
+
+// ì—¬ëŸ¬ ë¬¸ì„œë¥¼ insert
+db.posts.insertMany([
+	{title: "Fifth Post",
+	  by: "bit",
+	  likes: 50},
+	{title: "Sixth Post",
+	  by: "hong",
+	  likes: 50}
+])
+
+// ë¬¸ì„œì˜ ê²€ìƒ‰
+// findOne: ì¡°ê±´ì„ ë§Œì¡±í•˜ëŠ” ë¬¸ì„œ ì¤‘ í•œ ê°œë¥¼ ë°˜í™˜
+// find(): ì¡°ê±´ì„ ë§Œì¡±í•˜ëŠ” ë¬¸ì„œì˜ ì»¤ì„œë¥¼ ë°˜í™˜
+
+db.posts.findOne()
+db.posts.find()
+//	.pretty() ë©”ì„œë“œ: BSONì„ ë³´ê¸° ì¢‹ê²Œ ì¶œë ¥
+
+// ê²€ìƒ‰ ì¡°ê±´ ì—°ì‚°ì
+// ê°™ë‹¤: { key: value }
+db.posts.find({ "by": "bit" })  // by = bit
+
+// í¬ë‹¤: $gt { key: {$gt: value })
+db.posts.find({ "likes": { $gt: 50 } })  // likes > 50
+// í¬ê±°ë‚˜ ê°™ë‹¤: $gte
+// ì‘ë‹¤: $lt
+// ì‘ê±°ë‚˜ ê°™ë‹¤: $lte
+// ê°™ì§€ ì•Šë‹¤: $ne
+
+// ì¡°ê±´ì˜ ì¡°í•©
+// and ì—°ì‚°
+/*
+  {
+    $and: [
+       { ì¡°ê±´ ê°ì²´ 1 },
+       { ì¡°ê±´ ê°ì²´ 2 }
+    ]
+*/
+
+// byê°€ hongì´ê³  likes <= 30
+db.posts.find({
+		$and: [
+			{ by: "hong" },
+			{ likes: { $lte: 30 } }
+		]
+	}
+)
+
+// or ì—°ì‚°
+/*
+  {
+     $or: [
+	{ ì¡°ê±´ ê°ì²´ 1 },
+	{ ì¡°ê±´ ê°ì²´ 2 }
+     ]
+  }
+*/
+// byê°€ hong ì´ê±°ë‚˜ likes > 10
+db.posts.find({
+		$or:[
+			{ by: "hong" },
+			{ likes: { $gt: 10 } }
+		]
+	}
+)	
+
+// Projection
+// find, findOneì˜ ë‘ ë²ˆì§¸ ì¸ì ê°ì²´ë¡œ ì¶œë ¥ í•„ë“œë¥¼ ëª…ì‹œ
+//  ì¶œë ¥ì„ ì œì–´í•  ìˆ˜ ìˆë‹¤.
+//  1: ì¶œë ¥í•¨, 0: ì¶œë ¥í•˜ì§€ ì•ŠìŒ
+// ëª¨ë“  ë¬¸ì„œë“¤ ì¤‘ì—ì„œ, _id ì¶œë ¥í•˜ì§€ ì•Šê³ 
+//  title, likes ì •ë³´ë¥¼ ì¶œë ¥
+db.posts.find({}, { title: 1, likes: 1, _id: 0 })
+
+// ì¶œë ¥ ì œí•œ
+//  .limit : ë°›ì•„ì˜¬ ê°¯ìˆ˜ë¥¼ ì œí•œ
+//  .skip : ê±´ë„ˆë›¸ ë¬¸ì„œì˜ ê°¯ìˆ˜ ì§€ì •
+db.posts.find().limit(2).skip(2)
+
+// ë°ì´í„° ì •ë ¬
+//  .sort : ì •ë ¬ ê¸°ì¤€ ê°ì²´
+//      1: ì˜¤ë¦„ì°¨ìˆœ, -1: ë‚´ë¦¼ì°¨ìˆœ
+
+// likesì˜ ì—­ìˆœìœ¼ë¡œ ì •ë ¬
 db.posts.find().sort({ likes: -1 })
