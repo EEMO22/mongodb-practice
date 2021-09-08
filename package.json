@@ -1,0 +1,29 @@
+{
+  "name": "mongodb-practice",
+  "version": "1.0.0",
+  "main": "general_example.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EEMO22/mongodb-practice.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EEMO22/mongodb-practice/issues"
+  },
+  "homepage": "https://github.com/EEMO22/mongodb-practice#readme",
+  "keywords": [],
+  "description": "",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongodb": "^4.1.1",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.12"
+  }
+}
