@@ -39,7 +39,8 @@ module.exports = (app) => {
         .then(result => {
             console.log(result);
             resp.status(200)
-                .send("SUCCESS: 친구를 추가했습니다.");
+                // .send("SUCCESS: 친구를 추가했습니다.")
+                .redirect("/web/friends/list");
         })
         .catch(reason => {
             console.error(reason);
@@ -76,6 +77,45 @@ module.exports = (app) => {
         .catch(reason => {
             resp.status(500)
             .send("<p>삭제할 수 없습니다.</p>");
+        })
+    })
+
+    //  수정
+    router.get("/friends/modify/:id", (req, resp) => {
+        console.log("수정할 ID:" + req.params.id);
+        let db = app.get("db");
+        db.collection("friends")
+        .findOne({_id: ObjectId(req.params.id)})
+        .then(result => {
+            resp.render("friend_update_form", { friend:result });
+        })
+        .catch(reason => {
+            resp.status(500)
+            .send("<p>수정할 수 없습니다.</p>");
+        })
+    })
+
+    router.post("/friends/update", (req, resp) => {
+        console.log(req.body);
+        const id = req.body.id;
+        const name = req.body.name;
+        const species = req.body.species;
+        const age = parseInt(req.body.age);
+        
+        const db = app.get("db");
+        db.collection("friends")
+        .updateOne({_id: ObjectId(id)},
+            {$set:
+                {name: name, species: species, age: age}
+            })
+        .then(result => {
+            console.log(result)
+            resp.redirect("/web/friends/list");
+        })
+        .catch(reason => {
+            console.error(reason);
+            resp.status(500)
+            .send("<p>수정할 수 없습니다.</p>");
         })
     })
 

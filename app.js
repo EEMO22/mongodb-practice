@@ -106,6 +106,8 @@ const webRouter = require("./router/WebRouter")(app);
 app.use("/web", webRouter);
 const apiRouter = require("./router/APIRouter")(app);
 app.use("/api", apiRouter);
+const apiRouterOne = require("./router/APIRouterOne")(app);
+app.use("/api", apiRouterOne);
 
 function startServer() {
     //  database 연결 정보
