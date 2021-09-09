@@ -31,6 +31,11 @@ const { MongoClient } = require("mongodb");
 //  미들웨어 express.static 미들웨어 함수를 등록
 app.use(express.static(__dirname + "/public"));
 
+//  body-parser 등록
+//  4.16 버전 이후로는 express 내부에 bodyparser가 포함
+//  POST 요청을 처리할 수 있게 된다.
+app.use(express.urlencoded({ extended: false }));
+
 //  View 엔진 설정
 app.set("view engine", "ejs");  //  뷰엔진으로 ejs 사용 선언
 app.set("views", __dirname + "/views"); //  템플릿의 위치
