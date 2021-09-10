@@ -9,7 +9,7 @@ const app = express();
 //  set(키, 값)  <- 값에 객체도 들어올 수 있다. mongoDB에서 불러온 값(객체)를 저장해두고 사용가능
 //  get(키)
 
-//  etag를 사용하지 않음*
+//  etag를 사용하지 않음
 app.set("etag", false);
 
 //  환경변수에 PORT가 설정되어 있으면 그 값을 사용
@@ -23,9 +23,18 @@ const logger = require("morgan");   //  로거 불러오기
 //  로거를 express에 추가: 미들웨어 추가
 app.use(logger("dev"));
 
+//  MongoDB
+const { MongoClient } = require("mongodb");
+
+
 //  정적 웹의 제공
 //  미들웨어 express.static 미들웨어 함수를 등록
 app.use(express.static(__dirname + "/public"));
+
+//  body-parser 등록
+//  4.16 버전 이후로는 express 내부에 bodyparser가 포함
+//  POST 요청을 처리할 수 있게 된다.
+app.use(express.urlencoded({ extended: false }));
 
 //  View 엔진 설정
 app.set("view engine", "ejs");  //  뷰엔진으로 ejs 사용 선언
@@ -35,12 +44,14 @@ app.set("views", __dirname + "/views"); //  템플릿의 위치
 //  app.get(url, callback)
 app.get("/", (req, resp) => {
     //  http 모듈의 응답 처리 메서드
-    /* console.log("[GET] /");
+    /*
+    console.log("[GET] /");
     resp.writeHead(200, {'Content-Type': 'text/html;charset=UTF-8'});
     resp.write("Express Welcomes You!");
-    resp.end(); */
+    resp.end();
+    */
     resp.status(200)
-        .contentType("text/html;charset=UTF-8")
+        .contentType("text/html;charset=utf-8")
         .render("home");
 });
 
@@ -72,16 +83,16 @@ app.get("/request", (req, resp) => {
         }
 })
 
-//  URL 파라미터 처리 (Fancy URL, Pretty URL)
-//  URL의 경로 일부로 데이터 전송 방식
+//  URL 파라미터 처리(Fancy URL, Pretty URL)
+//  URL의 경로일부로 데이터 전송 방식
 app.get("/urlparam/:name", (req, resp) => {
     //  url 파라미터는 params 객체로 얻어온다.
     let userName = req.params.name;
-    resp.writeHead(200, { "Content-Type": "text/html;charset=UTF-8"})
+    resp.writeHead(200, { "Content-Type": "text/html;charset=UTF-8"});
     resp.write("<h1>name:" + userName + "</h1>")
-    resp.write("<p>URL 파라미터를 전달 받았습니다.<p>")
-    resp.end();
-})
+    resp.write("<p>URL 파라미터를 전달 받았습니다.</p>")
+    resp.send();
+});
 
 //  뷰엔진 활용
 app.get("/render", (req, resp) => {
@@ -90,7 +101,39 @@ app.get("/render", (req, resp) => {
         .render("render");
 });
 
-//  서버 start
-http.createServer(app).listen(app.get('port'), () => {
-    console.log("Web Server is running on port:" + app.get("port"));
-})
+//  Router 등록(미들웨어)
+const webRouter = require("./router/WebRouter")(app);
+app.use("/web", webRouter);
+const apiRouter = require("./router/APIRouter")(app);
+app.use("/api", apiRouter);
+const apiRouterOne = require("./router/APIRouterOne")(app);
+app.use("/api", apiRouterOne);
+
+function startServer() {
+    //  database 연결 정보
+    const dburl = "mongodb://localhost:27017";
+    //  데이터베이스 Connect
+    MongoClient.connect(dburl, { useNewUrlParser: true })
+        .then(client => {
+            //  db 선택
+            console.log("데이터베이스에 연결되었습니다.");
+            let db = client.db("mydb");
+            //  익스프레스에 추가
+            app.set("db", db);  //  db 키로 몽고 클라이언트 추가
+
+            //  express 실행
+            startExpress();
+        })
+        .catch(reason => {
+            console.error(reason);
+        });
+}
+
+function startExpress() {
+    //  서버 start
+    http.createServer(app).listen(app.get('port'), () => {
+        console.log("Web Server is running on port:" + app.get("port"));
+    })
+}
+
+startServer();
